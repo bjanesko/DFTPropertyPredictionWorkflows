@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+# Unpack CREST-generated conformers into Gaussian 16 input files
+use Cwd;
+use strict;
+my $ensemble=0;
+if($ARGV[0]>0){
+        $ensemble=1;
+}
+
+my $a2k=627.5095;
+my $nmol2= 5;
+my $solvent= "water";
+my $l="\n\n--link1--\n";
+my $head="%mem=20GB\n%nprocshared=32\n%chk=";
+my $meth ="#P nosymm M062X def2TZVP scf(tight,fermi) integral(grid=ultrafine) opt scrf(smd,solvent=$solvent) \n\n";
+my $freq ="#P nosymm M062X scf(tight,fermi) integral(grid=ultrafine) freq=noraman chkbasis  geom=allcheck guess=read scrf=checkpoint \n\n";
+
+
+my $parent= getcwd;
+foreach my $d (<*>){
+ if(-d $d){
+    my $newd= sprintf("%s/%s/",$parent,$d,);
+    chdir($newd);
+    print sprintf("You are in %s\n",getcwd);
+
+    my $charge = `grep "chrg" crest*slurm|sed "s/.*chrg//"|awk "{print \\\$1}"`;chomp($charge);
+    print "Your charge is $charge \n";
+    my $chargeandmult= "$charge 1";
+    my $dir =`pwd`;
+    chomp($dir);
+    $dir = $dir. "|";
+    print "Your directory is $dir \n";
+    print "Your solvent is $solvent\n";
+
+    my $in="./crest_conformers.xyz";
+    if($ensemble>0){$in='./ensemble/final_ensemble.xyz';}
+    my $nat = `head -n1 $in`;chomp($nat);$nat = $nat + 0;
+    my $nmol=`grep -c "^ *$nat" $in`;chomp($nmol);
+    if($nmol>$nmol2){$nmol=$nmol2;}
+    my $E0 = `grep -m1 -A1 "^ *$nat" $in|tail -n1`;chomp($E0);
+    for(my $imol=1;$imol<=$nmol;$imol++){
+            my $f = sprintf("%02s",$imol);
+            open F, ">$f.gjf";
+            print F "$head$f.chk\n$meth";
+            my $i1 = $imol+1;
+            my $E = `grep -m$imol -A1 "^ *$nat" $in|tail -n1`;chomp($E);
+            my $DE = $a2k*($E-$E0);
+            print "$imol $E $DE  \n";
+            print F "File $imol $DE \n\n$chargeandmult\n";
+            my $na2=$nat+1;
+            my $geom = `grep -m$imol -A$na2 "^ *$nat" $in|tail -n$nat`;
+            print F "$geom\n\n";
+            print F "$l$head$f.chk\n$freq\n\n";
+            close(F);
+    }
+    chdir "$parent";
+ }
+}
+
