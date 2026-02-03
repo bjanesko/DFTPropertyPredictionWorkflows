@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+use strict;
+my $a2kJ = 2625.5; # Hartree to kJ/mol 
+my $RT = 298.15*0.008314; # RT in kJ/mol, T=298 K 
+my @Gs=();
+foreach my $dir('octanol','water'){
+	my $Glowest=0; my $flowest='';
+	foreach my $f (<./$dir/*out>){
+		my $E=`tac $f|grep -m1 "SCF Don"|awk '{print \$5}'`;chomp($E); # Large basis 
+		my $E0=`tac $f|grep -m2 "SCF Don"|tail -n1 |awk '{print \$5}' `;chomp($E0);  # Small basis 
+		my $G0=`grep "hermal Free" $f|awk "{print \\\$NF}"|sort -g -k1 |head -n1 `;chomp($G0);
+		my $G = $E + $G0 - $E0;
+		if($G<$Glowest){
+			$Glowest =$G;
+			$flowest =$f;
+		}
+		#print("+++ $f $E $G0 $G\n");
+	}
+	print "Lowest free energy $Glowest in directory $dir from file $flowest\n";
+	push(@Gs,$Glowest);
+}
+my $DG = $a2kJ*($Gs[1]-$Gs[0]);
+print sprintf("Octanol-to-water transfer free energy: %6.2f kJ/mol \n",$DG);
+print sprintf("ClogP:  %6.2f \n",$DG/(2.303*$RT));
