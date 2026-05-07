@@ -16,7 +16,7 @@ python3 readGaussian.py
 
 This should predict fumaric acid pKas 7.06 and 4.27. 
 
-# DFT preditction workflow (clogP and logD)
+# DFT prediction workflow (clogP and logD)
 The workflow consists of two main main scripts:
 readPartitionCoefficient.pl – Calculates the octanol/water partition coefficient (clogP)
 titra_curve_cal_v2.py – Generates titration curves and computes logD values 
