@@ -26,7 +26,7 @@ Usage:
 1. Calculate Partition Coefficient (clogP)
 Run the Perl script to compute the partition coefficient between water and octanol:
 perl readPartitionCoefficient.pl
-This script processes the input files and outputs the calculated clogP values.
+This script processes the outputs the calculated clogP values.
 
 2. Generate Titration Curves and Calculate logD
 Run the Python script to compute pH-dependent logD values and generate titration curves:
