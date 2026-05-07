@@ -19,7 +19,7 @@ This should predict fumaric acid pKas 7.06 and 4.27.
 # DFT prediction workflow (clogP and logD)
 The workflow consists of two main main scripts:
 readPartitionCoefficient.pl – Calculates the octanol/water partition coefficient (clogP)
-titra_curve_cal_v2.py – Generates titration curves and computes logD values 
+titra_curve_cal.py – Generates titration curves and computes logD values 
 All from Gaussian output files
 
 Usage: 
@@ -30,11 +30,13 @@ This script processes the outputs the calculated clogP values.
 
 2. Generate Titration Curves and Calculate logD
 Run the Python script to compute pH-dependent logD values and generate titration curves:
-python3 titra_curve_cal_v2.py
+python3 titra_curve_cal.py
 By default, the script operates on the current working directory containing the required subdirectories (neutral, plusOne, twoplus).
 To view all available command-line options:
-python3 titra_curve_cal_v2.py --help
+python3 titra_curve_cal.py --help
 
 3. Analyze Hbonds and calculate total surface area
 Run these Python scripts
-python3 hbondanalyzer.py and python3 total_surface_area.py 
+python3 hbondanalyzer.py and python3 total_surface_area.py
+
+Sample of the Gaussian input and output files are in Gaussian_input_and_output.zip
